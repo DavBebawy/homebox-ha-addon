@@ -50,12 +50,12 @@ jobs:
           if [[ ${#changed_addons[@]} -gt 0 ]]; then
             echo "Changed add-ons: ${changed_addons[@]}"
             echo "changed=true" >> $GITHUB_OUTPUT
+            # Output the changed addons as a valid JSON array
             echo "addons=$(echo '[\"${changed_addons[@]}\"]' | sed 's/ /\",\"/g')" >> $GITHUB_OUTPUT
           else
             echo "No add-on had any monitored files changed (${{ env.MONITORED_FILES }})"
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
-
 
   build:
     needs: init
@@ -63,10 +63,11 @@ jobs:
     permissions:
       packages: write
     if: needs.init.outputs.changed == 'true'
+    # Corrected job name using matrix values
     name: Build ${{ matrix.arch }} ${{ matrix.addon }} add-on
     strategy:
       matrix:
-        addon: ${{ fromJson(needs.init.outputs.changed_addons) }}
+        addon: ${{ fromJson(needs.init.outputs.addons) }}
         arch: ["aarch64", "amd64", "armv7"]
 
     steps:
@@ -94,7 +95,7 @@ jobs:
           fi
 
       - name: Login to GitHub Container Registry
-        if: env.BUILD_ARGS != '--test' || env.BUILD_ARGS == ''
+        if: env.BUILD_ARGS != '--test'
         uses: docker/login-action@v3.3.0
         with:
           registry: ghcr.io
@@ -112,4 +113,3 @@ jobs:
             --image "${{ steps.check.outputs.image }}" \
             --docker-hub "ghcr.io/${{ github.repository_owner }}" \
             --addon
-
