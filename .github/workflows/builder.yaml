@@ -40,22 +40,22 @@ jobs:
               for file in ${{ env.MONITORED_FILES }}; do
                   if [[ "${{ steps.changed_files.outputs.all }}" =~ $addon/$file ]]; then
                     if [[ ! "${changed_addons[@]}" =~ $addon ]]; then
-                      changed_addons+=("\"${addon}\",");
+                      changed_addons+=("${addon}")
                     fi
                   fi
               done
             fi
           done
 
-          changed=$(echo ${changed_addons[@]} | rev | cut -c 2- | rev)
-
-          if [[ -n ${changed} ]]; then
-            echo "Changed add-ons: $changed";
-            echo "changed=true" >> $GITHUB_OUTPUT;
-            echo "addons=[\"${changed_addons[@]}\"]" >> $GITHUB_OUTPUT;
+          if [[ ${#changed_addons[@]} -gt 0 ]]; then
+            echo "Changed add-ons: ${changed_addons[@]}"
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "addons=$(echo '[\"${changed_addons[@]}\"]' | sed 's/ /\",\"/g')" >> $GITHUB_OUTPUT
           else
-            echo "No add-on had any monitored files changed (${{ env.MONITORED_FILES }})";
+            echo "No add-on had any monitored files changed (${{ env.MONITORED_FILES }})"
+            echo "changed=false" >> $GITHUB_OUTPUT
           fi
+
 
   build:
     needs: init
