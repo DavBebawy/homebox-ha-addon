@@ -52,10 +52,11 @@ jobs:
           if [[ -n ${changed} ]]; then
             echo "Changed add-ons: $changed";
             echo "changed=true" >> $GITHUB_OUTPUT;
-            echo "addons=[$changed]" >> $GITHUB_OUTPUT;
+            echo "addons=[\"${changed_addons[@]}\"]" >> $GITHUB_OUTPUT;
           else
             echo "No add-on had any monitored files changed (${{ env.MONITORED_FILES }})";
           fi
+
   build:
     needs: init
     runs-on: ubuntu-latest
@@ -81,7 +82,7 @@ jobs:
       - name: Check if add-on should be built
         id: check
         run: |
-          if [[ "${{ steps.info.outputs.architectures }}" =~ ${{ matrix.arch }} ]]; then
+          if [[ ",${{ steps.info.outputs.architectures }}," == *",${{ matrix.arch }},"* ]]; then
              echo "build_arch=true" >> $GITHUB_OUTPUT;
              echo "image=$(echo ${{ steps.info.outputs.image }} | cut -d'/' -f3)" >> $GITHUB_OUTPUT;
              if [[ -z "${{ github.head_ref }}" ]] && [[ "${{ github.event_name }}" == "push" ]]; then
@@ -93,7 +94,7 @@ jobs:
           fi
 
       - name: Login to GitHub Container Registry
-        if: env.BUILD_ARGS != '--test'
+        if: env.BUILD_ARGS != '--test' || env.BUILD_ARGS == ''
         uses: docker/login-action@v3.3.0
         with:
           registry: ghcr.io
@@ -111,3 +112,4 @@ jobs:
             --image "${{ steps.check.outputs.image }}" \
             --docker-hub "ghcr.io/${{ github.repository_owner }}" \
             --addon
+

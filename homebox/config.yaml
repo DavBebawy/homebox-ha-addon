@@ -3,7 +3,7 @@ name: Homebox Addon
 version: "2.1.0"
 slug: homebox
 description: Homebox add-on
-url: "https://github.com/sysadminsmedia/homebox-addon/blob/main/example"
+url: "https://github.com/davbebawy/homebox-ha-addon/blob/main/homebox"
 arch:
   # - armhf
   - armv7
@@ -16,6 +16,6 @@ options:
   message: "Hello world..."
 schema:
   message: "str?"
-image: "ghcr.io/sysadminsmedia/homebox-ha-addon"
+image: "ghcr.io/davbebawy/homebox-ha-addon"
 ports:
   7745/tcp: 7745
