@@ -10,3 +10,7 @@ labels:
   org.opencontainers.image.licenses: ""
 args:
   TEMPIO_VERSION: "2021.09.0"
+arch:
+  -aarch64
+  -amd64
+  -armv7
